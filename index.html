@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="nl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Rekenen oefenen</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f2f5fa;
+            color: #19304e;
+            margin: 0;
+            padding: 18px
+        }
+
+        .app {
+            max-width: 950px;
+            margin: auto;
+            background: white;
+            border-radius: 22px;
+            padding: clamp(18px, 4vw, 38px);
+            box-shadow: 0 5px 24px #182b4b12
+        }
+
+        h1 {
+            margin: 0 0 22px;
+            font-size: clamp(24px, 4vw, 34px)
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 22px
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            flex: 1;
+            min-width: 210px
+        }
+
+        label {
+            font-weight: 650
+        }
+
+        select {
+            font: inherit;
+            border: 1px solid #b9c6d9;
+            border-radius: 10px;
+            padding: 13px;
+            background: #fff;
+            color: #19304e;
+            width: 100%
+        }
+
+        button {
+            font: inherit;
+            font-weight: 650;
+            border: 0;
+            border-radius: 10px;
+            padding: 13px 20px;
+            background: #175cf0;
+            color: white;
+            cursor: pointer
+        }
+
+        button.secondary {
+            background: #e6edf8;
+            color: #19304e
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 22px 0
+        }
+
+        .exercises {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 13px
+        }
+
+        .exercise {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e1e7f1;
+            border-radius: 12px;
+            padding: 11px;
+            min-width: 0
+        }
+
+        .number {
+            flex: none;
+            min-width: 35px;
+            text-align: center;
+            border-radius: 8px;
+            background: #e2edff;
+            color: #1649a5;
+            font-weight: 800;
+            padding: 9px 5px
+        }
+
+        .problem {
+            font-size: clamp(17px, 2.6vw, 22px);
+            font-weight: 600;
+            white-space: nowrap
+        }
+
+        .answer {
+            width: 85px;
+            min-width: 0;
+            margin-left: auto;
+            font-size: 20px;
+            padding: 9px 5px;
+            border: 1px solid #aabbd2;
+            border-radius: 8px;
+            text-align: center
+        }
+
+        .exercise.correct {
+            border-color: #32a16d;
+            background: #f0fff6
+        }
+
+        .exercise.wrong {
+            border-color: #d94b4b;
+            background: #fff5f5
+        }
+
+        .feedback {
+            font-size: 13px;
+            color: #b32626
+        }
+
+        .result {
+            font-weight: 750;
+            font-size: 20px;
+            margin-top: 14px
+        }
+
+        .hint {
+            color: #536781;
+            font-size: 14px;
+            margin: 10px 0 0
+        }
+
+        @media(max-width:650px) {
+            .exercises {
+                grid-template-columns: 1fr
+            }
+
+            .app {
+                padding: 18px
+            }
+
+            .exercise {
+                gap: 9px
+            }
+
+            .answer {
+                width: 78px
+            }
+        }
+
+        @media print {
+            body {
+                background: white
+            }
+
+            .app {
+                box-shadow: none
+            }
+
+            .controls,
+            .actions,
+            .hint {
+                display: none
+            }
+
+            .exercises {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .answer {
+                border: 0;
+                border-bottom: 1px solid #333;
+                border-radius: 0
+            }
+
+            .exercise {
+                break-inside: avoid
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="app">
+        <h1>Rekenen oefenen</h1>
+        <div class="controls">
+            <div class="field"><label for="kind">Soort oefeningen</label><select id="kind">
+                    <option value="maal">Maaltafels (×)</option>
+                    <option value="delen">Deeltafels (÷)</option>
+                    <option value="maal-delen">Maal- en deeltafels gemengd (× en ÷)</option>
+                    <option value="kwadraat">Kwadraten (²)</option>
+                    <option value="wortel">Vierkantswortels (√)</option>
+                    <option value="kwadraat-wortel">Kwadraten en vierkantswortels gemengd</option>
+                </select></div>
+            <div class="field" style="flex:0 1 180px;min-width:145px"><label for="count">Aantal
+                    oefeningen</label><select id="count">
+                    <option>20</option>
+                    <option selected>40</option>
+                    <option>60</option>
+                </select></div>
+        </div>
+        <p class="hint">Vul eerst alle antwoorden in. Je ziet pas na het controleren welke antwoorden juist zijn.</p>
+        <div class="actions"><button id="new">Nieuwe reeks</button><button id="check" class="secondary">Controleer
+                antwoorden</button><button id="print" class="secondary">Afdrukken</button></div>
+        <div id="result" class="result" role="status" aria-live="polite"></div>
+        <div id="exercises" class="exercises"></div>
+    </main>
+    <script>(() => { 'use strict'; const $ = id => document.getElementById(id), nums = [...Array(15)].map((_, i) => i + 1).concat([20, 25]); let questions = []; function rand(a) { return a[Math.floor(Math.random() * a.length)] } function make(type) { if (type === 'maal-delen') type = rand(['maal', 'delen']); if (type === 'kwadraat-wortel') type = rand(['kwadraat', 'wortel']); if (type === 'kwadraat' || type === 'wortel') { const n = rand(nums); return { text: type === 'kwadraat' ? `${n}² =` : `√${n * n} =`, answer: type === 'kwadraat' ? n * n : n } } const a = rand([2, 3, 4, 5, 6, 7, 8, 9]), b = rand([2, 3, 4, 5, 6, 7, 8, 9]); return { text: type === 'maal' ? `${a} × ${b} =` : `${a * b} ÷ ${a} =`, answer: type === 'maal' ? a * b : b } } function fresh() { const type = $('kind').value, count = Number($('count').value); questions = []; let previous = ''; for (let i = 0; i < count; i++) { let q; let tries = 0; do { q = make(type); tries++ } while (q.text === previous && tries < 20); previous = q.text; questions.push(q) } $('result').textContent = ''; const wrap = $('exercises'); wrap.replaceChildren(); questions.forEach((q, i) => { const el = document.createElement('div'); el.className = 'exercise'; const no = document.createElement('span'); no.className = 'number'; no.textContent = `${i + 1})`; const task = document.createElement('span'); task.className = 'problem'; task.textContent = q.text; const input = document.createElement('input'); input.className = 'answer'; input.type = 'number'; input.step = '1'; input.min = '0'; input.inputMode = 'numeric'; input.autocomplete = 'off'; input.setAttribute('aria-label', `Antwoord op oefening ${i + 1}: ${q.text}`); el.append(no, task, input); wrap.append(el) }); } function check() { let right = 0; const cards = [...$('exercises').children]; cards.forEach((card, i) => { const inp = card.querySelector('input'); const val = inp.value.trim(); const ok = val !== '' && Number(val) === questions[i].answer; card.classList.toggle('correct', ok); card.classList.toggle('wrong', !ok); const old = card.querySelector('.feedback'); if (old) old.remove(); if (ok) right++; else { const msg = document.createElement('span'); msg.className = 'feedback'; msg.textContent = val === '' ? 'Nog invullen' : `Juist: ${questions[i].answer}`; card.append(msg) } }); $('result').textContent = `Score: ${right} / ${questions.length}. Je kunt antwoorden verbeteren en opnieuw controleren.`; $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' }) } $('new').addEventListener('click', fresh); $('check').addEventListener('click', check); $('print').addEventListener('click', () => window.print()); $('kind').addEventListener('change', fresh); $('count').addEventListener('change', fresh); fresh() })();</script>
+</body>
+
+</html>

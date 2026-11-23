@@ -1,6 +1,217 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Kwadraten oefenen tot 20</title><style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#17243a;background:#f3f6fb}*{box-sizing:border-box}body{margin:0;padding:20px}.app{max-width:650px;margin:auto;background:white;border-radius:24px;padding:clamp(18px,4vw,36px);box-shadow:0 10px 35px #22334c16}h1{font-size:clamp(25px,5vw,34px);margin:0 0 6px}.sub{color:#64748b;margin:0 0 22px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#edf3fa;border-radius:14px;padding:12px;text-align:center}.stat small{display:block;color:#53657c}.stat strong{font-size:27px}.question{text-align:center;background:#f5f8ff;border-radius:22px;margin:20px 0;padding:26px 12px}.question .hint{color:#53657c}.math{font-size:clamp(48px,12vw,78px);font-weight:750;margin:14px 0 24px}input,select,button{font:inherit}input{width:100%;max-width:340px;text-align:center;font-size:32px;padding:13px;border:2px solid #aabbd0;border-radius:13px;background:white}button{border:0;border-radius:13px;padding:15px 20px;font-weight:700;cursor:pointer;min-height:54px}.primary{display:block;width:100%;max-width:340px;margin:12px auto 0;background:#215bd5;color:white;font-size:19px}.primary:disabled{background:#9aaac7}.secondary{width:100%;background:#e6edf7;color:#23477e}.feedback{font-size:21px;font-weight:700;min-height:32px;margin:14px 0 0}.good{color:#087b50}.bad{color:#b52b36}.settings{display:flex;gap:14px;margin:10px 0 20px}.settings label{flex:1;font-size:14px;color:#53657c}.settings select{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid #aabbd0;border-radius:10px;background:white;font-size:19px}.foot{font-size:13px;color:#64748b;text-align:center;margin-top:16px}@media(max-width:400px){body{padding:10px}.app{padding:16px}.settings{gap:8px}}
-</style></head><body><main class="app"><h1>Kwadraten oefenen</h1><p class="sub">Willekeurige vragen met natuurlijke getallen van 0 tot 20.</p><div class="stats"><div class="stat"><small>Juist</small><strong id="correct">0</strong></div><div class="stat"><small>Fout</small><strong id="wrong">0</strong></div><div class="stat"><small>Score</small><strong id="score">0%</strong></div></div><section class="question"><div class="hint">Bereken het kwadraat</div><div class="math" id="question">7² = ?</div><form id="form"><input id="answer" type="number" inputmode="numeric" min="0" step="1" placeholder="Antwoord" autocomplete="off" aria-label="Je antwoord"><button class="primary" id="action" type="submit">Controleer</button></form><div id="feedback" class="feedback" role="status" aria-live="polite"></div></section><h2 style="font-size:19px">Instellingen</h2><div class="settings"><label>Vanaf<select id="min"></select></label><label>Tot en met<select id="max"></select></label></div><button id="restart" class="secondary">↻ Nieuwe oefenronde</button><p class="foot">Werkt offline · Geen account nodig · Geschikt voor tablet</p></main><script>
-(()=>{'use strict';const $=id=>document.getElementById(id),min=$('min'),max=$('max'),answer=$('answer'),action=$('action'),feedback=$('feedback');for(let i=0;i<=20;i++){for(const s of [min,max]){const o=document.createElement('option');o.value=i;o.textContent=i;s.appendChild(o)}}min.value='0';max.value='20';let current=7,checked=false,correct=0,total=0;const range=()=>[Number(min.value),Number(max.value)];function randomQuestion(){const [lo,hi]=range();let candidates=[];for(let i=lo;i<=hi;i++)if(i!==current)candidates.push(i);current=candidates.length?candidates[Math.floor(Math.random()*candidates.length)]:lo;checked=false;answer.disabled=false;answer.value='';action.textContent='Controleer';feedback.textContent='';feedback.className='feedback';$('question').textContent=current+'² = ?';answer.focus()}function update(){ $('correct').textContent=correct;$('wrong').textContent=total-correct;$('score').textContent=total?Math.round(correct/total*100)+'%':'0%'}function reset(){correct=total=0;update();randomQuestion()}$('form').addEventListener('submit',e=>{e.preventDefault();if(checked){randomQuestion();return}const raw=answer.value.trim();if(!/^\d+$/.test(raw))return;const ok=Number(raw)===current*current;total++;if(ok)correct++;update();checked=true;answer.disabled=true;feedback.className='feedback '+(ok?'good':'bad');feedback.textContent=ok?'✓ Juist! Goed gedaan!':'✗ Niet juist. '+current+' × '+current+' = '+current*current;action.textContent='Volgende vraag →';action.focus()});min.addEventListener('change',()=>{if(Number(min.value)>Number(max.value))max.value=min.value;reset()});max.addEventListener('change',()=>{if(Number(max.value)<Number(min.value))min.value=max.value;reset()});$('restart').addEventListener('click',reset);})();
-</script></body></html>
+<html lang="nl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>Kwadraten oefenen tot 20</title>
+    <style>
+        :root {
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #17243a;
+            background: #f3f6fb
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            padding: 20px
+        }
+
+        .app {
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            border-radius: 24px;
+            padding: clamp(18px, 4vw, 36px);
+            box-shadow: 0 10px 35px #22334c16
+        }
+
+        h1 {
+            font-size: clamp(25px, 5vw, 34px);
+            margin: 0 0 6px
+        }
+
+        .sub {
+            color: #64748b;
+            margin: 0 0 22px
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px
+        }
+
+        .stat {
+            background: #edf3fa;
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center
+        }
+
+        .stat small {
+            display: block;
+            color: #53657c
+        }
+
+        .stat strong {
+            font-size: 27px
+        }
+
+        .question {
+            text-align: center;
+            background: #f5f8ff;
+            border-radius: 22px;
+            margin: 20px 0;
+            padding: 26px 12px
+        }
+
+        .question .hint {
+            color: #53657c
+        }
+
+        .math {
+            font-size: clamp(48px, 12vw, 78px);
+            font-weight: 750;
+            margin: 14px 0 24px
+        }
+
+        input,
+        select,
+        button {
+            font: inherit
+        }
+
+        input {
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            font-size: 32px;
+            padding: 13px;
+            border: 2px solid #aabbd0;
+            border-radius: 13px;
+            background: white
+        }
+
+        button {
+            border: 0;
+            border-radius: 13px;
+            padding: 15px 20px;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: 54px
+        }
+
+        .primary {
+            display: block;
+            width: 100%;
+            max-width: 340px;
+            margin: 12px auto 0;
+            background: #215bd5;
+            color: white;
+            font-size: 19px
+        }
+
+        .primary:disabled {
+            background: #9aaac7
+        }
+
+        .secondary {
+            width: 100%;
+            background: #e6edf7;
+            color: #23477e
+        }
+
+        .feedback {
+            font-size: 21px;
+            font-weight: 700;
+            min-height: 32px;
+            margin: 14px 0 0
+        }
+
+        .good {
+            color: #087b50
+        }
+
+        .bad {
+            color: #b52b36
+        }
+
+        .settings {
+            display: flex;
+            gap: 14px;
+            margin: 10px 0 20px
+        }
+
+        .settings label {
+            flex: 1;
+            font-size: 14px;
+            color: #53657c
+        }
+
+        .settings select {
+            display: block;
+            width: 100%;
+            margin-top: 6px;
+            padding: 12px;
+            border: 1px solid #aabbd0;
+            border-radius: 10px;
+            background: white;
+            font-size: 19px
+        }
+
+        .foot {
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 16px
+        }
+
+        @media(max-width:400px) {
+            body {
+                padding: 10px
+            }
+
+            .app {
+                padding: 16px
+            }
+
+            .settings {
+                gap: 8px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="app">
+        <h1>Kwadraten oefenen</h1>
+        <p class="sub">Willekeurige vragen met natuurlijke getallen van 0 tot 20.</p>
+        <div class="stats">
+            <div class="stat"><small>Juist</small><strong id="correct">0</strong></div>
+            <div class="stat"><small>Fout</small><strong id="wrong">0</strong></div>
+            <div class="stat"><small>Score</small><strong id="score">0%</strong></div>
+        </div>
+        <section class="question">
+            <div class="hint">Bereken het kwadraat</div>
+            <div class="math" id="question">7² = ?</div>
+            <form id="form"><input id="answer" type="number" inputmode="numeric" min="0" step="1" placeholder="Antwoord"
+                    autocomplete="off" aria-label="Je antwoord"><button class="primary" id="action"
+                    type="submit">Controleer</button></form>
+            <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+        </section>
+        <h2 style="font-size:19px">Instellingen</h2>
+        <div class="settings"><label>Vanaf<select id="min"></select></label><label>Tot en met<select
+                    id="max"></select></label></div><button id="restart" class="secondary">↻ Nieuwe oefenronde</button>
+        <p class="foot">Werkt offline · Geen account nodig · Geschikt voor tablet</p>
+    </main>
+    <script>
+        (() => { 'use strict'; const $ = id => document.getElementById(id), min = $('min'), max = $('max'), answer = $('answer'), action = $('action'), feedback = $('feedback'); for (let i = 0; i <= 20; i++) { for (const s of [min, max]) { const o = document.createElement('option'); o.value = i; o.textContent = i; s.appendChild(o) } } min.value = '0'; max.value = '20'; let current = 7, checked = false, correct = 0, total = 0; const range = () => [Number(min.value), Number(max.value)]; function randomQuestion() { const [lo, hi] = range(); let candidates = []; for (let i = lo; i <= hi; i++)if (i !== current) candidates.push(i); current = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : lo; checked = false; answer.disabled = false; answer.value = ''; action.textContent = 'Controleer'; feedback.textContent = ''; feedback.className = 'feedback'; $('question').textContent = current + '² = ?'; answer.focus() } function update() { $('correct').textContent = correct; $('wrong').textContent = total - correct; $('score').textContent = total ? Math.round(correct / total * 100) + '%' : '0%' } function reset() { correct = total = 0; update(); randomQuestion() } $('form').addEventListener('submit', e => { e.preventDefault(); if (checked) { randomQuestion(); return } const raw = answer.value.trim(); if (!/^\d+$/.test(raw)) return; const ok = Number(raw) === current * current; total++; if (ok) correct++; update(); checked = true; answer.disabled = true; feedback.className = 'feedback ' + (ok ? 'good' : 'bad'); feedback.textContent = ok ? '✓ Juist! Goed gedaan!' : '✗ Niet juist. ' + current + ' × ' + current + ' = ' + current * current; action.textContent = 'Volgende vraag →'; action.focus() }); min.addEventListener('change', () => { if (Number(min.value) > Number(max.value)) max.value = min.value; reset() }); max.addEventListener('change', () => { if (Number(max.value) < Number(min.value)) min.value = max.value; reset() }); $('restart').addEventListener('click', reset); })();
+    </script>
+</body>
+
+</html>
